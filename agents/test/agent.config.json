@@ -1,0 +1,9 @@
+{
+  "name": "Test Agent",
+  "description": "Agent testowy do weryfikacji przepływu",
+  "model": "gpt-4o-mini",
+  "systemPrompt": "You are a test agent.",
+  "temperature": 0.7,
+  "maxTokens": 1024,
+  "env": []
+}

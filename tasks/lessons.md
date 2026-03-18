@@ -1,0 +1,13 @@
+# Lessons Learned
+
+## 2026-03-17 — create-next-app temporary directory naming
+
+- Failure mode: `create-next-app` failed when the temporary directory name started with a dot (`.tmp-next15`) because npm package naming rules disallow names starting with `.`.
+- Detection signal: CLI error `Could not create a project called ".tmp-next15" because of npm naming restrictions`.
+- Prevention rule: Use temporary scaffold directory names that are valid npm package names (for example, `tmp-next15`).
+
+## 2026-03-17 — shell interpolation inside `tsx -e` command
+
+- Failure mode: Used shell interpolation syntax inside a quoted `tsx -e` command, causing `bad substitution` and invalid stdout writes.
+- Detection signal: Bash error `bad substitution` and Node `ERR_INVALID_ARG_TYPE` during verification.
+- Prevention rule: Use single-quoted `tsx -e` scripts and avoid shell-side interpolation inside inline JavaScript snippets.
