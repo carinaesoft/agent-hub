@@ -229,3 +229,45 @@ Done.
   - `npm run lint` ✅
   - `npx tsc --noEmit` ✅
   - `npm run build` ✅
+
+---
+
+# TASK-08 — Stop Endpoint + Active Process Store
+
+## Status
+Done.
+
+## Verification
+- [x] Red step: `npx tsx -e "import './src/app/api/agents/[id]/stop/route';"` fails before implementation (`MODULE_NOT_FOUND`)
+- [x] Import checks for `stopAgent`/`isAgentRunning` and stop route succeed
+- [x] Runtime script verifies active map registration + `stopAgent` + cleanup
+- [x] API smoke: `POST /api/agents/test/stop` returns `404` when idle
+- [x] API smoke: while `/api/agents/test/run` is active, `POST /api/agents/test/stop` returns `200`
+- [x] API smoke: second `POST /api/agents/test/stop` returns `404`
+- [x] `npm run lint`
+- [x] `npx tsc --noEmit`
+- [x] `npm run build`
+
+## Results
+- Extended `src/lib/agent-runner.ts` with global process tracking:
+  - added module-level `activeProcesses` map
+  - `runAgent()` now registers active process by `agentId`
+  - cleanup on process `done` and `error` removes map entry
+  - exported `stopAgent(agentId): boolean`
+  - exported `isAgentRunning(agentId): boolean`
+- Added `src/app/api/agents/[id]/stop/route.ts`:
+  - `POST` calls `stopAgent(agentId)`
+  - returns `200 { success: true }` when process was running and got stop signal
+  - returns `404 { error: \"Agent is not running\" }` when no active process
+  - returns `500` JSON on unexpected errors
+- Verification outcomes:
+  - Red step (before implementation): `npx tsx -e \"import './src/app/api/agents/[id]/stop/route';\"` ❌ `MODULE_NOT_FOUND` (expected)
+  - import checks for runner exports and stop route ✅
+  - runtime active-map smoke ✅ (`active process map smoke passed`)
+  - API smoke on dev server ✅:
+    - idle `POST /api/agents/test/stop` → `404`
+    - while `/api/agents/test/run` active, `POST /api/agents/test/stop` → `200`
+    - second `POST /api/agents/test/stop` → `404`
+  - `npm run lint` ✅
+  - `npx tsc --noEmit` ✅
+  - `npm run build` ✅

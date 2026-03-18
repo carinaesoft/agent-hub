@@ -17,3 +17,9 @@
 - Failure mode: Passed `AgentConfig` directly to `runAgent()` which expects `Record<string, unknown>`, causing a TypeScript incompatibility.
 - Detection signal: `TS2322` error (`AgentConfig` not assignable to `Record<string, unknown>`) during typecheck.
 - Prevention rule: Normalize strongly typed config objects to plain records (`{ ...config }`) before passing them to generic `Record<string, unknown>` APIs.
+
+## 2026-03-18 — unreliable red-step using named import presence
+
+- Failure mode: Used `npx tsx -e "import { stopAgent } from './src/lib/agent-runner'; ..."` as a red-step check, but it did not fail even before implementing the export.
+- Detection signal: command exited successfully when failure was expected.
+- Prevention rule: For red steps, prefer checks that fail deterministically at runtime (for example, importing a missing file path or executing behavior that requires the missing symbol), not checks that depend on transpiler/module interop quirks.

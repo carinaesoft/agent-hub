@@ -13,6 +13,8 @@ export interface AgentProcess {
   events: EventEmitter;
 }
 
+const activeProcesses = new Map<string, AgentProcess>();
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -112,11 +114,21 @@ export function runAgent(options: RunOptions): AgentProcess {
     });
   });
 
+  const agentProcess: AgentProcess = {
+    stop: () => {
+      child.kill("SIGTERM");
+    },
+    events,
+  };
+
+  activeProcesses.set(options.agentId, agentProcess);
+
   child.on("close", (exitCode) => {
     if (stdoutBuffer.trim().length > 0) {
       emitParsedOutput(events, stdoutBuffer);
     }
 
+    activeProcesses.delete(options.agentId);
     events.emit("done", {
       exitCode,
       duration: Date.now() - startTime,
@@ -124,13 +136,23 @@ export function runAgent(options: RunOptions): AgentProcess {
   });
 
   child.on("error", (error) => {
+    activeProcesses.delete(options.agentId);
     events.emit("error", { message: error.message });
   });
 
-  return {
-    stop: () => {
-      child.kill("SIGTERM");
-    },
-    events,
-  };
+  return agentProcess;
+}
+
+export function stopAgent(agentId: string): boolean {
+  const process = activeProcesses.get(agentId);
+  if (!process) {
+    return false;
+  }
+
+  process.stop();
+  return true;
+}
+
+export function isAgentRunning(agentId: string): boolean {
+  return activeProcesses.has(agentId);
 }
