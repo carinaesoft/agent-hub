@@ -154,3 +154,40 @@ Done.
   - `npm run lint` ✅
   - `npx tsc --noEmit` ✅
   - `npm run build` ✅
+
+---
+
+# TASK-06 — Agent Runner
+
+## Status
+Done.
+
+## Verification
+- [x] Red step: `npx tsx -e "import { runAgent } from './src/lib/agent-runner'; void runAgent;"` fails before implementation (`MODULE_NOT_FOUND`)
+- [x] `npx tsx -e "import { runAgent } from './src/lib/agent-runner'; void runAgent;"` succeeds after implementation
+- [x] Runtime script verifies `log`, `result`, and `done` events
+- [x] Runtime script verifies `stop()` sends SIGTERM and process completes
+- [x] `npm run lint`
+- [x] `npx tsc --noEmit`
+- [x] `npm run build`
+
+## Results
+- Added `src/lib/agent-runner.ts` with:
+  - `RunOptions` and `AgentProcess` interfaces
+  - `runAgent(options)` returning `{ stop, events }`
+- Runner implementation includes:
+  - spawn via `spawn('npx', ['tsx', agentPath], { stdio: ['pipe', 'pipe', 'pipe'] })`
+  - config transfer over stdin as JSON + `stdin.end()`
+  - buffered stdout parsing by `\\n` with fallback info logs for non-JSON lines
+  - event emission: `log`, `result`, `done`, `error`
+  - stderr forwarding as error-level `log`
+  - `stop()` implementation using `SIGTERM`
+  - missing entry-file handling via emitted `error` event
+- Verification outcomes:
+  - Red step (before implementation): `npx tsx -e "import { runAgent } from './src/lib/agent-runner'; void runAgent;"` ❌ `MODULE_NOT_FOUND` (expected)
+  - import check after implementation ✅
+  - runtime smoke: `runAgent event smoke passed` ✅
+  - runtime stop smoke: `runAgent stop smoke passed` ✅
+  - `npm run lint` ✅
+  - `npx tsc --noEmit` ✅
+  - `npm run build` ✅
