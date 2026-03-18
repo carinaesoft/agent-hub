@@ -389,3 +389,66 @@ Done.
   - Dev smoke ✅:
     - `/agent/test` contained `Agent Parameters (JSON)` and `Agent-specific settings`
     - `GET /api/agents/test` returned `config.params: {}`
+
+---
+
+# TASK-12 — Migrate agent S01E01 to Agent Hub contract
+
+## Status
+Done.
+
+## Verification
+- [x] `echo '{}' | npx tsx agents/S01E01/index.ts`
+- [x] `npx eslint agents/S01E01/index.ts`
+
+## Results
+- Added `agents/S01E01/agent.config.json` with full Agent Hub config and parameterized `params` values (`csvPath`, demographic filters, verify endpoint/task, OpenRouter base URL).
+- Added `agents/S01E01/index.ts` implementing Agent Hub contract:
+  - uses `readConfig`, `log`, `result` from `../../src/lib/agent-helpers`
+  - no `console.log`/`console.error`
+  - typed `S01E01Config` with validated runtime parsing
+  - all runtime values read from `config`, `config.params`, and env vars (`OPENROUTER_API_KEY`, `API_KEY`)
+  - preserves CSV load/filter/tag/verify flow from original script
+  - exits with `process.exit(0)` on success and `process.exit(1)` on error
+- Added `agents/S01E01/README.md` with env requirements and params reference table.
+- Removed legacy `agents/S01E01/src/` directory.
+- Verification outcomes:
+  - `echo '{}' | npx tsx agents/S01E01/index.ts` ✅
+    - emitted first info log (`Starting S01E01 — People Filter`) and then config-validation error log (expected for empty config)
+  - `npx eslint agents/S01E01/index.ts` ✅
+
+---
+
+# TASK-13 — Migrate agent S01E02 to Agent Hub contract
+
+## Status
+Done.
+
+## Verification
+- [x] `echo '{}' | npx tsx agents/S01E02/index.ts`
+- [x] `npx eslint agents/S01E02/index.ts`
+
+## Results
+- Added `agents/S01E02/agent.config.json` with full Agent Hub config and parameterized `params`:
+  - endpoints (`locationEndpoint`, `accessLevelEndpoint`, `verifyEndpoint`)
+  - task name (`verifyTask`)
+  - OpenRouter base URL
+  - suspects list and power plants map
+- Added `agents/S01E02/index.ts` implementing Agent Hub contract:
+  - imports `readConfig`, `log`, `result` from `../../src/lib/agent-helpers`
+  - no `console.log`
+  - typed `S01E02Config` with runtime validation
+  - preserves original flow:
+    - suspect locations fetch
+    - closest suspect via haversine
+    - OpenAI tool-call loop (max 10 iterations)
+    - tool execution (`get_access_level`, `submit_answer`)
+  - parameterizes model/systemPrompt/temperature/maxTokens/endpoints/suspects/powerPlants via config
+  - uses `OPENROUTER_API_KEY` and `API_KEY` from environment variables
+  - emits `result(finalData)` and exits with explicit success/error codes
+- Added `agents/S01E02/README.md` with env requirements and params documentation.
+- Removed legacy `agents/S01E02/src/` directory.
+- Verification outcomes:
+  - `echo '{}' | npx tsx agents/S01E02/index.ts` ✅
+    - emitted first info log (`Starting S01E02 — Find Him`) then config-validation error (expected for empty config)
+  - `npx eslint agents/S01E02/index.ts` ✅

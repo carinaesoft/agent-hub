@@ -1,0 +1,23 @@
+{
+  "name": "S01E01 — People Filter",
+  "description": "Filters suspects from CSV by demographics and job tags, then verifies with centrala API",
+  "model": "gpt-4o-mini",
+  "systemPrompt": "Klasyfikujesz opisy stanowisk pracy. Przypisz pasujące tagi z listy: IT, transport, edukacja, medycyna, praca z ludźmi, praca z pojazdami, praca fizyczna.",
+  "temperature": 0.7,
+  "maxTokens": 4096,
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "csvPath": "people.csv",
+    "filterGender": "M",
+    "filterCity": "Grudziądz",
+    "filterAgeMin": 20,
+    "filterAgeMax": 40,
+    "filterTag": "transport",
+    "verifyEndpoint": "https://hub.ag3nts.org/verify",
+    "verifyTask": "people",
+    "openrouterBaseURL": "https://openrouter.ai/api/v1"
+  }
+}

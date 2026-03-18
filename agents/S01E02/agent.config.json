@@ -1,0 +1,32 @@
+{
+  "name": "S01E02 — Find Him",
+  "description": "Locates suspect nearest to a power plant using location API, retrieves access level, and submits answer to centrala",
+  "model": "gpt-4o-mini",
+  "systemPrompt": "Jesteś agentem śledczym. Znalazłeś osobę która była najbliżej elektrowni atomowej. Pobierz accessLevel tej osoby i wyślij odpowiedź.",
+  "temperature": 0.7,
+  "maxTokens": 4096,
+  "env": ["OPENROUTER_API_KEY", "API_KEY"],
+  "params": {
+    "openrouterBaseURL": "https://openrouter.ai/api/v1",
+    "locationEndpoint": "https://hub.ag3nts.org/api/location",
+    "accessLevelEndpoint": "https://hub.ag3nts.org/api/accesslevel",
+    "verifyEndpoint": "https://hub.ag3nts.org/verify",
+    "verifyTask": "findhim",
+    "suspects": [
+      { "name": "Cezary", "surname": "Żurek", "born": 1987 },
+      { "name": "Jacek", "surname": "Nowak", "born": 1991 },
+      { "name": "Oskar", "surname": "Sieradzki", "born": 1993 },
+      { "name": "Wojciech", "surname": "Bielik", "born": 1986 },
+      { "name": "Wacław", "surname": "Jasiński", "born": 1986 }
+    ],
+    "powerPlants": {
+      "Zabrze": { "lat": 50.3249, "lng": 18.7857, "code": "PWR3847PL" },
+      "Piotrków Trybunalski": { "lat": 51.4058, "lng": 19.7034, "code": "PWR5921PL" },
+      "Grudziądz": { "lat": 53.4837, "lng": 18.7536, "code": "PWR7264PL" },
+      "Tczew": { "lat": 53.7794, "lng": 18.7764, "code": "PWR1593PL" },
+      "Radom": { "lat": 51.4027, "lng": 21.1471, "code": "PWR8406PL" },
+      "Chelmno": { "lat": 53.3484, "lng": 18.4248, "code": "PWR2758PL" },
+      "Żarnowiec": { "lat": 54.4833, "lng": 18.1333, "code": "PWR6132PL" }
+    }
+  }
+}
