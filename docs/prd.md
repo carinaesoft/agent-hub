@@ -160,7 +160,8 @@ agents/<AGENT_ID>/
   "systemPrompt": "string — system prompt przekazywany do agenta",
   "temperature": "number — 0.0 - 2.0, domyślnie 0.7",
   "maxTokens": "number — domyślnie 4096",
-  "env": ["string[] — lista wymaganych zmiennych środowiskowych"]
+  "env": ["string[] — lista wymaganych zmiennych środowiskowych"],
+  "params": { "key": "value — agent-specific config map (any keys)" }
 }
 ```
 
@@ -169,7 +170,7 @@ agents/<AGENT_ID>/
 Konfiguracja przekazywana przez **stdin** jako JSON (jednoliniowy):
 
 ```
-{"model":"gpt-4o","systemPrompt":"...","temperature":0.7,"maxTokens":4096}
+{"model":"gpt-4o","systemPrompt":"...","temperature":0.7,"maxTokens":4096,"params":{}}
 ```
 
 ### Komunikacja agent → serwer

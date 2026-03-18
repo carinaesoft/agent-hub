@@ -271,3 +271,121 @@ Done.
   - `npm run lint` ✅
   - `npx tsc --noEmit` ✅
   - `npm run build` ✅
+
+---
+
+# TASK-09 — Frontend — Lista agentów (strona główna)
+
+## Status
+Done.
+
+## Verification
+- [x] `npm run lint`
+- [x] `npx tsc --noEmit`
+- [x] `npm run build`
+- [x] `npm run dev -- --hostname 127.0.0.1 --port 3000` then `curl -sS http://127.0.0.1:3000 | grep -oE "AGENT HUB|CONFIGURED|NO CONFIG|Brak agentów|centrala // localhost" | sort -u`
+
+## Results
+- Added `src/components/AgentCard.tsx`:
+  - card/link UI for `/agent/[id]`
+  - displays name, description, and status badge (`CONFIGURED` / `NO CONFIG`)
+  - command-center styling (dark panel, sharp corners, green-tinted border + hover glow)
+- Replaced `src/app/page.tsx`:
+  - server-side list rendering via direct `scanAgents()` call
+  - responsive grid layout (`1-3` columns)
+  - command-center header (`AGENT HUB` + blinking online indicator)
+  - empty state message: `Brak agentów. Stwórz folder w agents/ z plikiem index.ts`
+  - subtle footer text: `centrala // localhost`
+  - set `dynamic = "force-dynamic"` to keep list request-time fresh
+- Added `src/app/loading.tsx` for loading state (`Loading agents...` with amber pulse indicator)
+- Updated `src/app/layout.tsx` metadata and global body classes for the dark/monospace command-center look.
+- Verification outcomes:
+  - `npm run lint` ✅
+  - `npx tsc --noEmit` ✅
+  - `npm run build` ✅
+  - Dev smoke ✅:
+    - started server on `127.0.0.1:3000`
+    - `curl` output contained: `AGENT HUB`, `CONFIGURED`, `centrala // localhost`
+
+---
+
+# TASK-10 — Frontend — Widok agenta (config + runner + logi)
+
+## Status
+Done.
+
+## Verification
+- [x] `npm run lint`
+- [x] `npx tsc --noEmit`
+- [x] `npm run build`
+- [x] `npm run dev -- --hostname 127.0.0.1 --port 3000` then:
+  - `curl -sS http://127.0.0.1:3000/agent/test | grep -oE "CONFIGURATION|RUN CONTROL|LOG STREAM|Save|Run"`
+  - `curl -sS -X PUT http://127.0.0.1:3000/api/agents/test -H 'Content-Type: application/json' --data @agents/test/agent.config.json`
+  - `curl -sS -N http://127.0.0.1:3000/api/agents/test/run | head -n 20`
+
+## Results
+- Added `src/components/ConfigForm.tsx` (`"use client"`):
+  - controlled form for `model`, `systemPrompt`, `temperature`, `maxTokens`
+  - model select options: `gpt-4o`, `gpt-4o-mini`, `gpt-4.1-mini`, `claude-sonnet-4-20250514`
+  - Save flow via `PUT /api/agents/{id}` with inline success/error notification
+  - command-center styling and monospace theme
+- Added `src/components/LogViewer.tsx` (`"use client"`):
+  - states for `logs`, `status` (`idle`/`running`/`finished`/`error`), and `duration`
+  - Run flow via SSE `EventSource` on `/api/agents/{id}/run`
+  - handles `log`, `result`, `done`, and `error` events
+  - Stop flow via `POST /api/agents/{id}/stop`
+  - auto-scrolling terminal-like log panel with level colors (`info`, `warn`, `error`, `debug`) and highlighted `result`
+- Added `src/app/agent/[id]/page.tsx` (server component):
+  - loads params with `await params` (Next.js 15)
+  - gets config via `getConfig(id)` and validates agent existence via `scanAgents()`
+  - renders header + back link + side-by-side `ConfigForm` and `LogViewer` (responsive)
+  - command-center theme and footer (`centrala // localhost`)
+- Added `src/app/agent/[id]/loading.tsx` loading UI.
+- Verification outcomes:
+  - `npm run lint` ✅
+  - `npx tsc --noEmit` ✅
+  - `npm run build` ✅
+  - Dev smoke ✅:
+    - `GET /agent/test` contained `CONFIGURATION`, `RUN CONTROL`, `LOG STREAM`, `Save`, `Run`
+    - `PUT /api/agents/test` returned `{"success":true}`
+    - SSE stream emitted `event: log`, `event: result`, `event: done`
+
+---
+
+# TASK-11 — AgentConfig params field + ConfigForm JSON editor
+
+## Status
+Done.
+
+## Verification
+- [ ] `npm run lint` (fails on unrelated files in `agents/S01E0X`, e.g. `no-explicit-any`)
+- [ ] `npx tsc --noEmit` (fails on unrelated missing dependency in `agents/S01E03/src/mcp.ts`: `openmeteo`)
+- [ ] `npm run build` (fails on unrelated missing dependency in `agents/S01E01/src/main.ts`: `csv-parse/sync`)
+- [x] Scoped lint: `npx eslint src/lib/config-store.ts src/components/ConfigForm.tsx`
+- [x] Scoped typecheck: temporary project config including only `src/lib/config-store.ts` and `src/components/ConfigForm.tsx`
+- [x] `npm run dev -- --hostname 127.0.0.1 --port 3000` then:
+  - `curl -sS http://127.0.0.1:3000/agent/test | grep -oE "Agent Parameters \\(JSON\\)|Agent-specific settings" | sort -u`
+  - `curl -sS http://127.0.0.1:3000/api/agents/test`
+
+## Results
+- Extended `src/lib/config-store.ts`:
+  - added `params: Record<string, unknown>` to `AgentConfig`
+  - added `params: {}` to `DEFAULT_CONFIG`
+- Updated `src/components/ConfigForm.tsx`:
+  - added `Agent Parameters (JSON)` section with helper text:
+    - `Agent-specific settings — check agent README for available keys`
+  - added monospace JSON textarea bound to formatted params JSON
+  - on Save, parses textarea JSON and merges into `config.params`
+  - invalid JSON (or non-object JSON) now shows inline error and prevents save request
+- Updated `docs/prd.md` schema example to include `params`.
+- Verification outcomes:
+  - Full-repo checks currently fail due unrelated external files in `agents/S01E0X`:
+    - `npm run lint` ❌ (`no-explicit-any` in `agents/S01E01/S01E02/S01E03/S01E05`)
+    - `npx tsc --noEmit` ❌ (missing module `openmeteo` in `agents/S01E03`)
+    - `npm run build` ❌ (missing module `csv-parse/sync` in `agents/S01E01`)
+  - Scoped checks for this task passed ✅:
+    - `npx eslint src/lib/config-store.ts src/components/ConfigForm.tsx`
+    - scoped `tsc --noEmit` using temporary task config including only changed files
+  - Dev smoke ✅:
+    - `/agent/test` contained `Agent Parameters (JSON)` and `Agent-specific settings`
+    - `GET /api/agents/test` returned `config.params: {}`

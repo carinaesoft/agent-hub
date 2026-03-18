@@ -390,6 +390,34 @@ Stwórz frontend strony głównej Agent Hub.
    - Nagłówek: "Agent Hub" + krótki opis
    - Stan pusty: "Brak agentów. Stwórz folder w agents/ z plikiem index.ts"
    - Ciemny motyw (dark background, light text)
+3. Visual style — "Command Center" theme:
+    This app manages AI agents in a world of secret logistics operations,
+    nuclear reactors, package redirections and covert datacenter missions.
+    The UI should feel like a military/industrial command center dashboard.
+
+    Colors:
+    - Background: #0a0f0a (near-black with slight green tint)
+    - Cards/panels: #0d1117 with border #1b2e1b (dark green-tinted border)
+    - Primary accent: emerald-500 (#10b981) — for active states, buttons, badges
+    - Secondary accent: amber-500 (#f59e0b) — for warnings, running status
+    - Error: red-500
+    - Text primary: #c9d1d9 (soft gray-white)
+    - Text secondary: #6b7b6b (muted green-gray)
+    - Result highlight: cyan-400 on dark background
+
+    Visual elements:
+    - Monospace font for ALL text (e.g. JetBrains Mono or font-mono from Tailwind)
+    - Agent cards should feel like "mission briefings" — sharp corners (rounded-sm),
+    thin borders, subtle green glow on hover (shadow-emerald-900/20)
+    - Status badges: "CONFIGURED" in emerald, "NO CONFIG" in gray, "RUNNING" in amber pulse
+    - Log panel: pure black (#000) background, green-tinted text, like a terminal
+    - Log levels: info=emerald-400, warn=amber-400, error=red-400, debug=gray-500
+    - Result entries: highlighted with a cyan-400 left border
+    - "Run" button: emerald with a play icon, transforms to amber "Stop" when running
+    - Page header: "AGENT HUB" in uppercase, tracked-wider, with a small
+    blinking dot (emerald) to indicate system is online
+    - Footer or subtle text: "centrala // localhost" in muted text
+    - Overall feel: Fallout terminal meets Bloomberg Terminal meets military C2 system
 ```
 
 ---
@@ -451,6 +479,35 @@ Stwórz stronę widoku agenta z trzema sekcjami: config, kontrolki, logi.
    - Odczytaj config z getConfig(id)
    - Wyświetl: nagłówek z nazwą agenta, link powrotny do /
    - Pod nagłówkiem: ConfigForm i LogViewer obok siebie (lub pod sobą na mobile)
+
+ 4. Visual style — "Command Center" theme:
+    This app manages AI agents in a world of secret logistics operations,
+    nuclear reactors, package redirections and covert datacenter missions.
+    The UI should feel like a military/industrial command center dashboard.
+
+    Colors:
+    - Background: #0a0f0a (near-black with slight green tint)
+    - Cards/panels: #0d1117 with border #1b2e1b (dark green-tinted border)
+    - Primary accent: emerald-500 (#10b981) — for active states, buttons, badges
+    - Secondary accent: amber-500 (#f59e0b) — for warnings, running status
+    - Error: red-500
+    - Text primary: #c9d1d9 (soft gray-white)
+    - Text secondary: #6b7b6b (muted green-gray)
+    - Result highlight: cyan-400 on dark background
+
+    Visual elements:
+    - Monospace font for ALL text (e.g. JetBrains Mono or font-mono from Tailwind)
+    - Agent cards should feel like "mission briefings" — sharp corners (rounded-sm),
+    thin borders, subtle green glow on hover (shadow-emerald-900/20)
+    - Status badges: "CONFIGURED" in emerald, "NO CONFIG" in gray, "RUNNING" in amber pulse
+    - Log panel: pure black (#000) background, green-tinted text, like a terminal
+    - Log levels: info=emerald-400, warn=amber-400, error=red-400, debug=gray-500
+    - Result entries: highlighted with a cyan-400 left border
+    - "Run" button: emerald with a play icon, transforms to amber "Stop" when running
+    - Page header: "AGENT HUB" in uppercase, tracked-wider, with a small
+    blinking dot (emerald) to indicate system is online
+    - Footer or subtle text: "centrala // localhost" in muted text
+    - Overall feel: Fallout terminal meets Bloomberg Terminal meets military C2 system  
 ```
 
 ---

@@ -9,6 +9,7 @@ export interface AgentConfig {
   temperature: number;
   maxTokens: number;
   env: string[];
+  params: Record<string, unknown>;
 }
 
 export const DEFAULT_CONFIG: AgentConfig = {
@@ -19,6 +20,7 @@ export const DEFAULT_CONFIG: AgentConfig = {
   temperature: 0.7,
   maxTokens: 4096,
   env: [],
+  params: {},
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
