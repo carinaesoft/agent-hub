@@ -11,3 +11,9 @@
 - Failure mode: Used shell interpolation syntax inside a quoted `tsx -e` command, causing `bad substitution` and invalid stdout writes.
 - Detection signal: Bash error `bad substitution` and Node `ERR_INVALID_ARG_TYPE` during verification.
 - Prevention rule: Use single-quoted `tsx -e` scripts and avoid shell-side interpolation inside inline JavaScript snippets.
+
+## 2026-03-18 — passing typed config to generic record API
+
+- Failure mode: Passed `AgentConfig` directly to `runAgent()` which expects `Record<string, unknown>`, causing a TypeScript incompatibility.
+- Detection signal: `TS2322` error (`AgentConfig` not assignable to `Record<string, unknown>`) during typecheck.
+- Prevention rule: Normalize strongly typed config objects to plain records (`{ ...config }`) before passing them to generic `Record<string, unknown>` APIs.

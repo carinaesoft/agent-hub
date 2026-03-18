@@ -191,3 +191,41 @@ Done.
   - `npm run lint` ✅
   - `npx tsc --noEmit` ✅
   - `npm run build` ✅
+
+---
+
+# TASK-07 — SSE Endpoint
+
+## Status
+Done.
+
+## Verification
+- [x] Red step: `npx tsx -e "import './src/app/api/agents/[id]/run/route';"` fails before implementation (`MODULE_NOT_FOUND`)
+- [x] `npx tsx -e "import './src/app/api/agents/[id]/run/route';"` succeeds after implementation
+- [x] `curl -N http://127.0.0.1:3000/api/agents/test/run` includes `event: log`, `event: result`, `event: done`
+- [x] SSE headers are present: `Content-Type`, `Cache-Control`, `Connection`
+- [x] Disconnect smoke (`curl --max-time`) executes cancel path without leaving running agent process
+- [x] `npm run lint`
+- [x] `npx tsc --noEmit`
+- [x] `npm run build`
+
+## Results
+- Added `src/app/api/agents/[id]/run/route.ts` with SSE streaming endpoint.
+- Implemented `GET` handler flow:
+  - reads `agentId` from `await params`
+  - loads config via `getConfig(agentId)`
+  - starts process via `runAgent({ agentId, config })`
+  - streams events with `ReadableStream` + `TextEncoder`
+  - emits SSE events: `log`, `result`, `done`, `error`
+  - closes stream on `done`/`error`
+  - handles disconnect via `cancel()` calling `agent.stop()`
+- Added JSON error responses for `404` (agent missing) and `500` (unexpected errors).
+- Verification outcomes:
+  - Red step (before implementation): `npx tsx -e "import './src/app/api/agents/[id]/run/route';"` ❌ `MODULE_NOT_FOUND` (expected)
+  - `npx tsx -e "import './src/app/api/agents/[id]/run/route';"` ✅
+  - SSE smoke (`curl -N`) ✅: stream included `event: log`, `event: result`, `event: done`
+  - Header check ✅: `Content-Type: text/event-stream`, `Cache-Control: no-cache`, `Connection: keep-alive`
+  - Disconnect smoke (`curl --max-time 1`) + process check ✅: no lingering `agents/test/index.ts` node process
+  - `npm run lint` ✅
+  - `npx tsc --noEmit` ✅
+  - `npm run build` ✅
