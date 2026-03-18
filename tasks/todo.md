@@ -116,3 +116,41 @@ Done.
   - `npm run lint` ✅
   - `npx tsc --noEmit` ✅
   - `npm run build` ✅
+
+---
+
+# TASK-05 — API Routes
+
+## Status
+Done.
+
+## Verification
+- [x] Red step: `npx tsx -e "import './src/app/api/agents/route';"` fails before implementation (`MODULE_NOT_FOUND`)
+- [x] `npx tsx -e "import './src/app/api/agents/route'; import './src/app/api/agents/[id]/route';"` succeeds after implementation
+- [x] `npm run lint`
+- [x] `npx tsc --noEmit`
+- [x] `npm run build`
+
+## Results
+- Added `src/app/api/agents/route.ts`:
+  - `GET` handler using `scanAgents()`
+  - returns `{ agents }` via `NextResponse.json(...)`
+  - error handling returns `500` with `{ error: message }`
+- Added `src/app/api/agents/[id]/route.ts`:
+  - `GET` handler returning `{ id, config }` from `getConfig(id)`
+  - `PUT` handler parsing JSON body and calling `saveConfig(id, body)`
+  - both handlers use `await context.params` (Next.js 15)
+  - both handlers return `404` for non-existing agent IDs
+  - validation for PUT body returns `400` on invalid payload shape
+- Verification outcomes:
+  - Red step (before implementation): `npx tsx -e "import './src/app/api/agents/route';"` ❌ `MODULE_NOT_FOUND` (expected)
+  - `npx tsx -e "import './src/app/api/agents/route'; import './src/app/api/agents/[id]/route';"` ✅
+  - API smoke via `curl` on dev server ✅:
+    - `GET /api/agents` → `200` with `agents` list
+    - `GET /api/agents/test` → `200` with `{ id, config }`
+    - `PUT /api/agents/test` → `200` with `{ success: true }`
+    - `GET /api/agents/does-not-exist` → `404`
+    - `PUT /api/agents/does-not-exist` → `404`
+  - `npm run lint` ✅
+  - `npx tsc --noEmit` ✅
+  - `npm run build` ✅
