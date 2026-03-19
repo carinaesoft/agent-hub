@@ -23,3 +23,9 @@
 - Failure mode: Used `npx tsx -e "import { stopAgent } from './src/lib/agent-runner'; ..."` as a red-step check, but it did not fail even before implementing the export.
 - Detection signal: command exited successfully when failure was expected.
 - Prevention rule: For red steps, prefer checks that fail deterministically at runtime (for example, importing a missing file path or executing behavior that requires the missing symbol), not checks that depend on transpiler/module interop quirks.
+
+## 2026-03-18 — template runtime crash on partial stdin config
+
+- Failure mode: Template agent accessed `config.params.openrouterBaseURL` directly, which crashed when stdin config was `{}` and `params` was missing.
+- Detection signal: `echo '{}' | npx tsx agents/TEST123/index.ts` failed with `Cannot read properties of undefined (reading 'openrouterBaseURL')`.
+- Prevention rule: Treat stdin config as partial input and normalize optional nested objects before reading their fields.

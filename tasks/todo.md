@@ -452,3 +452,44 @@ Done.
   - `echo '{}' | npx tsx agents/S01E02/index.ts` ✅
     - emitted first info log (`Starting S01E02 — Find Him`) then config-validation error (expected for empty config)
   - `npx eslint agents/S01E02/index.ts` ✅
+
+---
+
+# TASK-14 — Agent scaffolding script + template
+
+## Status
+Done.
+
+## Verification
+- [x] Red step (before implementation): `npm run new-agent TEST123` failed (`Missing script: "new-agent"`)
+- [x] `npm run new-agent TEST123` succeeds after implementation
+- [x] Running scaffold twice aborts on existing folder (`npm run new-agent DUP123` then `npm run new-agent DUP123` => second run exits with error)
+- [x] `ls -1 agents/TEST123` shows `agent.config.json`, `index.ts`, `README.md`
+- [x] `echo '{}' | npx tsx agents/TEST123/index.ts` emits `Agent started` and `Agent finished`
+- [x] `rm -rf agents/TEST123` and confirmed folder removal
+- [x] `npx tsx -e "import { scanAgents } from './src/lib/agent-scanner'; scanAgents().then((agents) => { const hasTemplate = agents.some((agent) => agent.id === '_template'); console.log(JSON.stringify({ count: agents.length, hasTemplate })); process.exit(hasTemplate ? 1 : 0); });"` returns `{"hasTemplate":false}`
+- [x] Scoped lint: `npx eslint scripts/new-agent.ts src/lib/agent-scanner.ts agents/_template/index.ts`
+- [ ] `npm run lint -- --quiet` (fails on pre-existing issues in `agents/S01E03` and `agents/S01E05`)
+- [ ] `npx tsc --noEmit` (fails on pre-existing missing module `openmeteo` in `agents/S01E03/src/mcp.ts`)
+- [ ] `npm run build` (fails for the same pre-existing type error in `agents/S01E03/src/mcp.ts`)
+
+## Results
+- Added scaffolding script `scripts/new-agent.ts`:
+  - reads agent ID from CLI args (`npx tsx scripts/new-agent.ts <ID>`)
+  - verifies `agents/_template` exists
+  - aborts with error if `agents/<ID>/` already exists
+  - creates `agents/<ID>/` and copies template files
+  - logs every created path
+- Added template boilerplate in `agents/_template/`:
+  - `agent.config.json` with the requested default schema and `params`
+  - `index.ts` short starter implementing Agent Hub JSON Lines contract using `readConfig`, `log`, and `result`
+  - `README.md` starter documentation
+- Updated `package.json`:
+  - script: `"new-agent": "tsx scripts/new-agent.ts"`
+  - dev dependency: `"tsx"` (required so `npm run new-agent ...` works)
+- Updated `src/lib/agent-scanner.ts` to ignore directories that start with `_` (so `_template` is skipped).
+- Verification outcomes:
+  - Requested scaffold flow (`npm run new-agent TEST123`) ✅
+  - Generated agent runtime smoke (`echo '{}' | npx tsx agents/TEST123/index.ts`) ✅
+  - Cleanup (`agents/TEST123` removed) ✅
+  - Scanner exclusion for `_template` ✅

@@ -1,0 +1,15 @@
+{
+  "name": "",
+  "description": "",
+  "model": "openai/gpt-4o-mini",
+  "systemPrompt": "You are a sexoholic.",
+  "temperature": 1,
+  "maxTokens": 4096,
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "user_prompt": "Tell me in one word what is better - sex or eating?"
+  }
+}

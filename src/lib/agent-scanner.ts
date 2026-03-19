@@ -74,7 +74,7 @@ export async function scanAgents(): Promise<AgentInfo[]> {
     throw error;
   }
 
-  const directories = entries.filter((entry) => entry.isDirectory());
+  const directories = entries.filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"));
   const scannedAgents = await Promise.all(
     directories.map(async (directory): Promise<AgentInfo | null> => {
       const id = directory.name;

@@ -7,7 +7,21 @@ interface LogViewerProps {
 }
 
 type AgentStatus = "idle" | "running" | "finished" | "error";
-type LogLevel = "info" | "warn" | "error" | "debug" | "result" | "system";
+
+// ── Single Source of Truth for log levels ───────────────────
+// Add new levels here — type & validation update automatically.
+const levelClassName = {
+  info: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+  warn: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+  error: "border-red-500/30 bg-red-500/10 text-red-400",
+  debug: "border-zinc-500/30 bg-zinc-500/10 text-zinc-500",
+  system: "border-zinc-500/30 bg-zinc-500/10 text-zinc-300",
+  result: "border-cyan-400/60 bg-cyan-400/10 text-cyan-300",
+  agent: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
+  user: "border-yellow-400/60 bg-yellow-400/10 text-yellow-300",
+} as const;
+
+type LogLevel = keyof typeof levelClassName;
 
 interface LogItem {
   id: string;
@@ -29,8 +43,8 @@ function toLogId(): string {
 }
 
 function toLevel(value: unknown): LogLevel {
-  if (value === "warn" || value === "error" || value === "debug" || value === "info") {
-    return value;
+  if (typeof value === "string" && value in levelClassName) {
+    return value as LogLevel;
   }
 
   return "info";
@@ -78,15 +92,6 @@ const statusClassName: Record<AgentStatus, string> = {
   running: "border-amber-500/40 bg-amber-500/10 text-amber-400 animate-pulse",
   finished: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
   error: "border-red-500/40 bg-red-500/10 text-red-400",
-};
-
-const levelClassName: Record<LogLevel, string> = {
-  info: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
-  warn: "border-amber-500/30 bg-amber-500/10 text-amber-400",
-  error: "border-red-500/30 bg-red-500/10 text-red-400",
-  debug: "border-zinc-500/30 bg-zinc-500/10 text-zinc-500",
-  system: "border-zinc-500/30 bg-zinc-500/10 text-zinc-300",
-  result: "border-cyan-400/60 bg-cyan-400/10 text-cyan-300",
 };
 
 export function LogViewer({ agentId }: LogViewerProps) {
@@ -331,7 +336,7 @@ export function LogViewer({ agentId }: LogViewerProps) {
               {logs.map((log) => (
                 <li
                   key={log.id}
-                  className={`rounded-sm border-l-2 p-2 ${log.level === "result" ? "border-cyan-400 bg-cyan-400/5" : "border-transparent"}`}
+                  className={`rounded-sm border-l-2 p-2 ${levelClassName[log.level]}`}
                 >
                   <div className="mb-1 flex items-center gap-2">
                     <span className="text-[10px] text-[#6b7b6b]">{formatTimestamp(log.timestamp)}</span>

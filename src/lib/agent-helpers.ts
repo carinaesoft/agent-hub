@@ -1,17 +1,17 @@
-export type LogLevel = "info" | "warn" | "error" | "debug";
+export type LogLevel = "info" | "warn" | "error" | "debug" | "agent" | "user" | "system";
 
 type AgentEvent =
   | {
-      type: "log";
-      level: LogLevel;
-      message: string;
-      timestamp: string;
-    }
+    type: "log";
+    level: LogLevel;
+    message: string;
+    timestamp: string;
+  }
   | {
-      type: "result";
-      data: unknown;
-      timestamp: string;
-    };
+    type: "result";
+    data: unknown;
+    timestamp: string;
+  };
 
 function writeJsonLine(event: AgentEvent): void {
   process.stdout.write(`${JSON.stringify(event)}\n`);
