@@ -11,16 +11,17 @@ interface ConfigFormProps {
 
 type SaveNotice =
   | {
-      kind: "success" | "error";
-      message: string;
-    }
+    kind: "success" | "error";
+    message: string;
+  }
   | null;
 
 const MODEL_OPTIONS = [
-  "gpt-4o",
+  "minimax/minimax-m2.7",
   "gpt-4o-mini",
   "gpt-4.1-mini",
-  "claude-sonnet-4-20250514",
+  "openai/gpt-5.4-mini",
+  "anthropic/claude-sonnet-4.6",
 ] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -211,9 +212,8 @@ export function ConfigForm({ agentId, initialConfig }: ConfigFormProps) {
 
           {saveNotice ? (
             <p
-              className={`text-xs ${
-                saveNotice.kind === "success" ? "text-emerald-400" : "text-red-400"
-              }`}
+              className={`text-xs ${saveNotice.kind === "success" ? "text-emerald-400" : "text-red-400"
+                }`}
             >
               {saveNotice.message}
             </p>

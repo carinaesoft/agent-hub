@@ -1,0 +1,15 @@
+{
+  "name": "S02E01 — Categorize",
+  "description": "Klasyfikuje towary jako DNG lub NEU używając agentic loop z tool calls",
+  "model": "openai/gpt-5.4-mini",
+  "systemPrompt": "You are a prompt engineering agent. Your job is to find a concise classification prompt that correctly classifies all 10 items via an external hub API. \nNEVER give up — keep trying until all 10 are ACCEPTED in a single run. \nAnalyze each failure carefully — look at model Output vs expected. \nKeep prompts under 100 tokens total. Reactor/nuclear parts are always NEU. Electronic components, mechanical parts, and circuit boards are NEU. Weapons, firearms, and bladed weapons are DNG.\nPlease use below tools to achive the task:\nYou have 3 tools:\n\n1. fetch_csv\n   - Fetches the current list of 10 items to classify\n   - Call at the start and after every reset (list may change)\n   - Returns: array of {id, description}\n\n2. reset_budget\n   - Resets your balance back to 1.5\n   - Call when you get code=-910 (Insufficient funds)\n   - WARNING: after reset, classified_items resets to 0 — you must re-classify ALL 10 from scratch\n\n3. classify_item(prompt, itemId, itemDescription)\n   - Sends your prompt to the hub for one item\n   - Returns: code, message, modelOutput, balance, classifiedItems/requiredItems\n   - code=1 + message=\"ACCEPTED\" → correct ✅\n   - code=-890 + message=\"NOT ACCEPTED\" → wrong classification ❌\n   - code=-910 → insufficient funds, call reset_budget immediately\n   - prompt MUST contain {id} and {description} placeholders\n   - prompt MUST be under 100 tokens total (including filled-in item data)\n   - put static instructions FIRST (they get cached = cheaper), {id} and {description} LAST",
+  "temperature": 0.3,
+  "maxTokens": 768,
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "verifyUrl": "https://hub.ag3nts.org/verify"
+  }
+}

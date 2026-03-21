@@ -493,3 +493,40 @@ Done.
   - Generated agent runtime smoke (`echo '{}' | npx tsx agents/TEST123/index.ts`) ✅
   - Cleanup (`agents/TEST123` removed) ✅
   - Scanner exclusion for `_template` ✅
+
+---
+
+# TASK-15 — Run Control log copy action
+
+## Status
+Done.
+
+## Verification
+- [x] Baseline: `npm run lint` (fails before this task on pre-existing issues in `agents/S01E03/src/main.ts`, `agents/S01E03/src/mcp.ts`, and `agents/S01E05/src/main.ts`)
+- [ ] `npm run lint` (still fails after this task on the same pre-existing issues in `agents/S01E03/src/main.ts`, `agents/S01E03/src/mcp.ts`, and `agents/S01E05/src/main.ts`)
+- [ ] `npx tsc --noEmit` (fails on pre-existing missing module `openmeteo` in `agents/S01E03/src/mcp.ts`)
+- [ ] `npm run build` (fails for the same pre-existing `openmeteo` type error in `agents/S01E03/src/mcp.ts`)
+- [x] `npx eslint src/components/LogViewer.tsx`
+- [x] `curl -sS http://127.0.0.1:3000/agent/test | grep -oE 'RUN CONTROL|LOG STREAM|Copy logs' | sort -u`
+- [x] `curl -sS -N http://127.0.0.1:3000/api/agents/test/run | head -n 20`
+- [x] `npx tsx -e 'import { buildClipboardLogText } from "./src/components/LogViewer"; ...'`
+
+## Results
+- Updated `src/components/LogViewer.tsx`:
+  - added a right-aligned `Copy logs` button in the `LOG STREAM` header
+  - copies all currently rendered log entries from the visible log stream state
+  - adds inline feedback states: `Copied` and `Copy failed`
+  - keeps the button disabled when there are no logs to copy
+- Improved structured log formatting:
+  - object / result payloads are now pretty-printed with indentation in the viewer
+  - copied text is exported in a readable terminal-style format (`[time] LEVEL message`)
+  - multiline messages are aligned under the first line for easier pasting into notes or chat
+- Verification outcomes:
+  - page smoke ✅: `/agent/test` HTML contained `RUN CONTROL`, `LOG STREAM`, and `Copy logs`
+  - SSE smoke ✅: `/api/agents/test/run` still emitted `event: log`, `event: result`, `event: done`
+  - clipboard formatter smoke ✅: exported text matched the new aligned multiline format
+  - scoped lint ✅: `npx eslint src/components/LogViewer.tsx`
+  - repo-wide checks remain blocked by unrelated pre-existing issues:
+    - `npm run lint` ❌ (`no-explicit-any` in `agents/S01E03` and `agents/S01E05`)
+    - `npx tsc --noEmit` ❌ (`Cannot find module 'openmeteo'` in `agents/S01E03/src/mcp.ts`)
+    - `npm run build` ❌ (same `openmeteo` type error)

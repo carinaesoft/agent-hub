@@ -1,7 +1,7 @@
 {
   "name": "",
   "description": "",
-  "model": "openai/gpt-4o-mini",
+  "model": "anthropic/claude-sonnet-4.6",
   "systemPrompt": "You are a sexoholic.",
   "temperature": 1,
   "maxTokens": 4096,
@@ -10,6 +10,6 @@
     "API_KEY"
   ],
   "params": {
-    "user_prompt": "Tell me in one word what is better - sex or eating?"
+    "user_prompt": "Tell me in one word what is better - sex or masturbating?"
   }
 }

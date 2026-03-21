@@ -7,6 +7,7 @@ interface LogViewerProps {
 }
 
 type AgentStatus = "idle" | "running" | "finished" | "error";
+type CopyFeedback = "idle" | "copied" | "error";
 
 // ── Single Source of Truth for log levels ───────────────────
 // Add new levels here — type & validation update automatically.
@@ -23,7 +24,7 @@ const levelClassName = {
 
 type LogLevel = keyof typeof levelClassName;
 
-interface LogItem {
+export interface LogItem {
   id: string;
   timestamp: string;
   level: LogLevel;
@@ -63,11 +64,20 @@ function toDisplayMessage(value: unknown): string {
     return value;
   }
 
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return String(value);
+  if (value === undefined) {
+    return "undefined";
   }
+
+  try {
+    const serialized = JSON.stringify(value, null, 2);
+    if (serialized !== undefined) {
+      return serialized;
+    }
+  } catch {
+    // Fall through to String() so malformed values are still visible to the user.
+  }
+
+  return String(value);
 }
 
 function parseEventPayload(data: string): unknown {
@@ -94,15 +104,32 @@ const statusClassName: Record<AgentStatus, string> = {
   error: "border-red-500/40 bg-red-500/10 text-red-400",
 };
 
+const maxLogLevelLabelLength = Math.max(...Object.keys(levelClassName).map((level) => level.length));
+
+function formatLogForClipboard(log: LogItem): string {
+  const prefix = `[${formatTimestamp(log.timestamp)}] ${log.level.toUpperCase().padEnd(maxLogLevelLabelLength, " ")} `;
+
+  return log.message
+    .split("\n")
+    .map((line, index) => `${index === 0 ? prefix : " ".repeat(prefix.length)}${line}`)
+    .join("\n");
+}
+
+export function buildClipboardLogText(logs: LogItem[]): string {
+  return logs.map((log) => formatLogForClipboard(log)).join("\n\n");
+}
+
 export function LogViewer({ agentId }: LogViewerProps) {
   const [logs, setLogs] = useState<LogItem[]>([]);
   const [status, setStatus] = useState<AgentStatus>("idle");
   const [duration, setDuration] = useState<number | null>(null);
   const [isStopping, setIsStopping] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState<CopyFeedback>("idle");
 
   const eventSourceRef = useRef<EventSource | null>(null);
   const logContainerRef = useRef<HTMLDivElement | null>(null);
   const statusRef = useRef<AgentStatus>("idle");
+  const copyFeedbackTimeoutRef = useRef<number | null>(null);
 
   const setStatusState = (nextStatus: AgentStatus): void => {
     statusRef.current = nextStatus;
@@ -118,6 +145,17 @@ export function LogViewer({ agentId }: LogViewerProps) {
     eventSourceRef.current = null;
   };
 
+  const scheduleCopyFeedbackReset = (): void => {
+    if (copyFeedbackTimeoutRef.current !== null) {
+      window.clearTimeout(copyFeedbackTimeoutRef.current);
+    }
+
+    copyFeedbackTimeoutRef.current = window.setTimeout(() => {
+      setCopyFeedback("idle");
+      copyFeedbackTimeoutRef.current = null;
+    }, 2000);
+  };
+
   useEffect(() => {
     const container = logContainerRef.current;
     if (!container) {
@@ -130,6 +168,10 @@ export function LogViewer({ agentId }: LogViewerProps) {
   useEffect(() => {
     return () => {
       closeStream();
+
+      if (copyFeedbackTimeoutRef.current !== null) {
+        window.clearTimeout(copyFeedbackTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -140,6 +182,7 @@ export function LogViewer({ agentId }: LogViewerProps) {
     setDuration(null);
     setStatusState("running");
     setIsStopping(false);
+    setCopyFeedback("idle");
 
     const source = new EventSource(`/api/agents/${agentId}/run`);
     eventSourceRef.current = source;
@@ -280,6 +323,37 @@ export function LogViewer({ agentId }: LogViewerProps) {
     }
   };
 
+  const handleCopyLogs = async (): Promise<void> => {
+    if (logs.length === 0) {
+      return;
+    }
+
+    if (navigator.clipboard?.writeText === undefined) {
+      setCopyFeedback("error");
+      scheduleCopyFeedbackReset();
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(buildClipboardLogText(logs));
+      setCopyFeedback("copied");
+    } catch {
+      setCopyFeedback("error");
+    }
+
+    scheduleCopyFeedbackReset();
+  };
+
+  const copyButtonClassName =
+    copyFeedback === "copied"
+      ? "border-emerald-500/60 bg-emerald-500/20 text-emerald-300"
+      : copyFeedback === "error"
+        ? "border-red-500/60 bg-red-500/20 text-red-300"
+        : "border-[#1b2e1b] bg-black text-[#6b7b6b] hover:border-cyan-400/60 hover:text-cyan-300";
+
+  const copyButtonLabel =
+    copyFeedback === "copied" ? "Copied" : copyFeedback === "error" ? "Copy failed" : "Copy logs";
+
   return (
     <section className="rounded-sm border border-[#1b2e1b] bg-[#0d1117] p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -324,7 +398,19 @@ export function LogViewer({ agentId }: LogViewerProps) {
       </div>
 
       <div className="mt-6">
-        <h3 className="text-xs uppercase tracking-[0.14em] text-[#6b7b6b]">LOG STREAM</h3>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-xs uppercase tracking-[0.14em] text-[#6b7b6b]">LOG STREAM</h3>
+          <button
+            type="button"
+            disabled={logs.length === 0}
+            onClick={() => {
+              void handleCopyLogs();
+            }}
+            className={`rounded-sm border px-3 py-1 text-[10px] uppercase tracking-[0.14em] transition disabled:cursor-not-allowed disabled:border-[#1b2e1b] disabled:bg-black disabled:text-[#344034] ${copyButtonClassName}`}
+          >
+            {copyButtonLabel}
+          </button>
+        </div>
         <div
           ref={logContainerRef}
           className="mt-2 h-[26rem] overflow-y-auto rounded-sm border border-[#1b2e1b] bg-black p-3 text-xs"
