@@ -1,10 +1,18 @@
 {
-  "name": "",
-  "description": "",
-  "model": "openai/gpt-4o-mini",
-  "systemPrompt": "You are a helpful assistant.",
-  "temperature": 0.7,
+  "name": "S02E05 — Drone Mission",
+  "description": "Programs a drone to bomb the dam near the power plant",
+  "model": "minimax/minimax-m2.7",
+  "systemPrompt": "You are a drone operator programming a DRN-BMB7 combat drone for a covert mission.\n\nMISSION BRIEF:\n- Officially: destroy power plant PWR6132PL\n- Actually: bomb the nearby dam to release cooling water\n- The drone must target the power plant as destination, but land on the dam's sector\n\nYour job:\n1. Use the map analysis to determine the dam's sector coordinates (x=column, y=row)\n2. Build the correct sequence of drone instructions\n3. Send via send_instructions\n4. Read API error messages carefully — they tell you exactly what's wrong\n5. Fix and resend until you get the flag\n\nKey instructions you'll need:\n- setDestinationObject(PWR6132PL) — official target\n- set(x,y) — dam sector coordinates\n- set(engineON), set(power%), set(altitude) — drone setup\n- set(destroy) — mission goal\n- flyToLocation — execute\n\nDon't overthink it. Send your best attempt and iterate on errors.",
+  "temperature": 0.2,
   "maxTokens": 4096,
-  "env": ["OPENROUTER_API_KEY", "API_KEY"],
-  "params": {}
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "verifyUrl": "https://hub.ag3nts.org/verify",
+    "task": "drone",
+    "visionModel": "openai/gpt-4o",
+    "maxIterations": 15
+  }
 }
