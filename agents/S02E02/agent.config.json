@@ -1,0 +1,17 @@
+{
+  "name": "S02E02 — Electricity",
+  "description": "Rozwiązuje puzzle elektryczne na planszy 3x3",
+  "model": "minimax/minimax-m2.7",
+  "systemPrompt": "You are an expert puzzle solver. You solve a 3x3 electrical grid puzzle by rotating cells to connect all power plants to the power source. \nFirst image shows the CURRENT state of an electrical cable tile. Second image shows the TARGET state. How many 90-degree CLOCKWISE rotations are needed to transform the current tile into the target tile? Respond with a single digit: 0, 1, 2, or 3. Nothing else.",
+  "temperature": 0.2,
+  "maxTokens": 2048,
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "visionModel": "google/gemini-3-flash-preview",
+    "verifyUrl": "https://hub.ag3nts.org/verify",
+    "task": "electricity"
+  }
+}
