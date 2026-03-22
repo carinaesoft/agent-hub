@@ -1,0 +1,18 @@
+{
+  "name": "S02E04 — Mailbox Search",
+  "description": "Searches operator mailbox for attack date, password, and confirmation code",
+  "model": "google/gemini-3-flash-preview",
+  "systemPrompt": "You are an intelligence agent searching an operator's email inbox for three critical pieces of information.\n\nWorkflow:\n1. Call zmail with action 'help' to discover available API actions and their EXACT parameters\n2. Search for emails from Wiktor (proton.me domain) — he sent a tip about our power plant\n3. Read full message content of relevant emails (search only shows metadata, use getMessages with ids param)\n4. Follow leads — check threads, look for replies from security department\n5. Search for: attack DATE, system PASSWORD, and SEC- confirmation code\n6. The mailbox is ACTIVE — new messages may arrive. If you can't find something, search again.\n7. When you have all 3 values, send via send_answer\n8. Use hub feedback to fix incorrect values\n\nIMPORTANT:\n- Always call 'help' first to learn exact API parameter names\n- Always read full message content via getMessages before extracting data\n- The confirmation code format is SEC- followed by 32 characters (36 total)\n- The date must be in YYYY-MM-DD format\n- One email may reference another thread — follow the trail\n- Try multiple search queries: from:, subject:, keywords",
+  "temperature": 0.2,
+  "maxTokens": 4096,
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "zmailUrl": "https://hub.ag3nts.org/api/zmail",
+    "verifyUrl": "https://hub.ag3nts.org/verify",
+    "task": "mailbox",
+    "maxIterations": 30
+  }
+}
