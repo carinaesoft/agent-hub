@@ -1,0 +1,19 @@
+{
+  "name": "S03E01 — Sensor Anomaly Detector",
+  "description": "Wykrywa anomalie w odczytach sensorów elektrowni: wartości poza zakresem, dane z nieaktywnych sensorów, rozbieżności między notatkami operatora a danymi.",
+  "model": "gpt-4.1-mini",
+  "systemPrompt": "You classify operator notes as POSITIVE (everything OK/normal/stable) or NEGATIVE (problems/anomalies/concerns).\n\nYou receive a JSON array: [{\"id\": 0, \"t\": \"note text\"}, ...]\n\nRespond ONLY with a JSON array: [{\"id\": 0, \"s\": \"P\"}, {\"id\": 1, \"s\": \"N\"}, ...]\n\nP = POSITIVE, N = NEGATIVE. No explanations. No markdown.",
+  "temperature": 0,
+  "maxTokens": 16384,
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "dataDir": "./sensors",
+    "verifyUrl": "https://hub.ag3nts.org/verify",
+    "task": "evaluation",
+    "batchSize": 500,
+    "openrouterBaseURL": "https://openrouter.ai/api/v1"
+  }
+}
