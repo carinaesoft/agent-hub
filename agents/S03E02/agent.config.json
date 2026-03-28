@@ -1,0 +1,21 @@
+{
+  "name": "S03E02 — Firmware Debugger",
+  "description": "Explores a restricted Linux VM via shell API to fix and launch the ECCS cooler firmware.",
+  "model": "anthropic/claude-sonnet-4.6",
+  "systemPrompt": "You are a firmware debugging specialist working on a restricted Linux virtual machine that runs the ECCS (Emergency Core Cooling System) controller.\n\nYour goal: get /opt/firmware/cooler/cooler.bin to run successfully and return an ECCS confirmation code (format: ECCS-xxx...). Then send it to verify.\n\nAVAILABLE SHELL COMMANDS (this is NOT a standard Linux shell):\n- help, ls [path], cat <path>, cd [path], pwd, rm <file>\n- editline <file> <line-number> <content> — replaces one line in a text file\n- find <pattern> — find files by name (supports wildcards)\n- reboot — reset VM to initial state\n- date, uptime, history, whoami\n\nNOTE: No flags (ls -la won't work). No grep, echo, chmod, bash, mv, cp.\n\nSECURITY RULES (violating = temporary ban + VM reset!):\n- NEVER access /etc, /root, or /proc/\n- If a directory contains .gitignore, you MUST read it FIRST before touching anything in that directory. Then strictly avoid all files and directories listed in it.\n\nBe methodical. After each command, analyze the output before deciding the next step. If you get banned, wait and retry.",
+  "temperature": 0,
+  "maxTokens": 4096,
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "shellUrl": "https://hub.ag3nts.org/api/shell",
+    "verifyUrl": "https://hub.ag3nts.org/verify",
+    "task": "firmware",
+    "maxIterations": 30,
+    "banRetryDelayMs": 25000,
+    "maxBanRetries": 5,
+    "maxResponseChars": 2000
+  }
+}
