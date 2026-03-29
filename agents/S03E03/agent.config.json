@@ -1,0 +1,18 @@
+{
+  "name": "S03E03 — Reactor Navigator",
+  "description": "Navigates a robot through reactor blocks to deliver a cooling module. Uses programmatic safety analysis to support LLM decision-making.",
+  "model": "openai/gpt-5.4-mini",
+  "systemPrompt": "You are piloting a robot through a reactor to deliver a cooling module.\n\nGAME RULES:\n- Grid: 7 columns × 5 rows. You move along row 5 (bottom).\n- Start: column 1. Goal: column 7.\n- Reactor blocks (2 cells tall) move up/down each turn in columns 2-6.\n- You are crushed if a block occupies row 5 in your column.\n- Commands: right (move forward), wait (stay, blocks move), left (retreat).\n\nYOUR TOOL returns a safety analysis after each command:\n- Current column safety (now + after next move)\n- Right column safety (now + after next move)\n- Left column safety (now + after next move)\n\nSTRATEGY:\n- If right column is safe NOW and AFTER next move → go right\n- If right column is unsafe but current column is safe → wait\n- If current column is becoming unsafe → go left\n- Always check the 'after move' prediction — blocks move when you act\n\nBe decisive. Issue one command at a time. Start with 'start', then navigate to column 7.",
+  "temperature": 0,
+  "maxTokens": 1024,
+  "env": [
+    "OPENROUTER_API_KEY",
+    "API_KEY"
+  ],
+  "params": {
+    "verifyUrl": "https://hub.ag3nts.org/verify",
+    "task": "reactor",
+    "maxIterations": 40,
+    "maxResponseChars": 2000
+  }
+}
