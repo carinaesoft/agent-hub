@@ -1,0 +1,15 @@
+{
+  "name": "S04E03 — Domatowo Rescue",
+  "description": "Taktyczna operacja ratunkowa — odnajdź partyzanta w ruinach Domatowa",
+  "model": "openai/gpt-4o-mini",
+  "systemPrompt": "",
+  "temperature": 0,
+  "maxTokens": 4096,
+  "env": [
+    "API_KEY"
+  ],
+  "params": {
+    "verifyUrl": "https://hub.ag3nts.org/verify",
+    "task": "domatowo"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "S04E02 — Wind Power",
+  "description": "Konfiguruje turbinę wiatrową w 40-sekundowym oknie serwisowym. Deterministyczny agent bez LLM.",
+  "model": "openai/gpt-4o-mini",
+  "systemPrompt": "",
+  "temperature": 0,
+  "maxTokens": 4096,
+  "env": [
+    "API_KEY"
+  ],
+  "params": {
+    "verifyUrl": "https://hub.ag3nts.org/verify",
+    "task": "windpower",
+    "ratedPowerKw": 14,
+    "cutoffWindMs": 14,
+    "minWindMs": 4,
+    "pollIntervalMs": 200,
+    "pollMaxRetries": 120
+  }
+}
